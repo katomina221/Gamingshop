@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Библиотека — GameStore</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        .page-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: #888; margin-bottom: 2rem; }
+
+        .empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #16213e;
+            border-radius: 8px;
+        }
+        .empty .emoji { font-size: 4rem; margin-bottom: 1rem; }
+        .empty h2 { margin-bottom: 0.5rem; }
+        .empty p { color: #888; margin-bottom: 1.5rem; }
+
+        .library-card .play-btn {
+            display: block;
+            width: 100%;
+            padding: 0.4rem;
+            margin-top: 0.5rem;
+            background: #4caf50;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .library-card .play-btn:hover { background: #3d8b40; }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+    <h1 class="page-title">📚 Моя библиотека</h1>
+    <p class="page-subtitle">
+        Игры, которые вы приобрели:
+        <strong th:text="${#lists.size(library)}">0</strong>
+    </p>
+
+    <div class="empty" th:if="${#lists.isEmpty(library)}">
+        <div class="emoji">📚</div>
+        <h2>Библиотека пуста</h2>
+        <p>Купите первую игру, и она появится здесь</p>
+        <a href="/games" class="btn btn-primary">Открыть магазин</a>
+    </div>
+
+    <div class="games-grid" th:unless="${#lists.isEmpty(library)}">
+        <div class="game-card library-card" th:each="game : ${library}">
+            <a th:href="@{/games/{id}(id=${game.id})}">
+                <img th:src="${game.imageUrl}" th:alt="${game.title}"
+                     onerror="this.src='https://placehold.co/200x267/16213e/e94560?text=Game'">
+                <div class="card-info">
+                    <div class="card-title" th:text="${game.title}">Название</div>
+                    <div class="card-genre" th:text="${game.genre}">Жанр</div>
+                </div>
+            </a>
+            <div style="padding: 0 0.75rem 0.75rem;">
+                <a href="#" class="play-btn">▶ Играть</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

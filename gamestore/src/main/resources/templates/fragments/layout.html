@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+
+    <th:block th:fragment="styles">
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Segoe UI', Tahoma, sans-serif;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            a { color: inherit; text-decoration: none; }
+            main { flex: 1; padding: 2rem; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+            nav.topnav {
+                background: #16213e;
+                padding: 0 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 60px;
+                border-bottom: 2px solid #0f3460;
+                position: sticky; top: 0; z-index: 100;
+            }
+            .nav-logo { font-size: 1.4rem; font-weight: 700; color: #e94560; }
+            .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+            .nav-links a { color: #c0c0c0; font-size: 0.9rem; transition: color 0.2s; }
+            .nav-links a:hover { color: #e94560; }
+
+            .btn {
+                padding: 0.5rem 1.2rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                display: inline-block;
+                transition: background 0.2s, opacity 0.2s;
+            }
+            .btn-primary { background: #e94560; color: white; }
+            .btn-primary:hover { background: #c73652; }
+            .btn-outline { border: 1px solid #e94560; color: #e94560; background: transparent; }
+            .btn-outline:hover { background: rgba(233, 69, 96, 0.1); }
+            .btn-success { background: #4caf50; color: white; }
+            .btn-success:hover { background: #3d8b40; }
+            .btn-danger { background: #e74c3c; color: white; }
+            .btn-danger:hover { background: #c0392b; }
+            .btn-secondary { background: #555; color: white; }
+            .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+            .alert {
+                padding: 0.75rem 1rem;
+                border-radius: 6px;
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+                background: rgba(233, 69, 96, 0.15);
+                border-left: 3px solid #e94560;
+            }
+            .alert-success {
+                background: rgba(76, 175, 80, 0.15);
+                border-left-color: #4caf50;
+            }
+
+            footer {
+                text-align: center;
+                padding: 2rem;
+                color: #555;
+                font-size: 0.85rem;
+                border-top: 1px solid #0f3460;
+                margin-top: 3rem;
+            }
+
+            .games-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 1.5rem;
+            }
+            .game-card {
+                background: #16213e;
+                border-radius: 8px;
+                overflow: hidden;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .game-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
+            }
+            .game-card img {
+                width: 100%;
+                aspect-ratio: 3/4;
+                object-fit: cover;
+                display: block;
+                background: #0f3460;
+            }
+            .card-info { padding: 0.75rem; }
+            .card-title {
+                font-weight: 600;
+                font-size: 0.9rem;
+                margin-bottom: 0.25rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .card-genre { font-size: 0.75rem; color: #888; margin-bottom: 0.5rem; }
+            .card-price { color: #4fc3f7; font-weight: 700; font-size: 0.9rem; }
+            .card-price.free { color: #4caf50; }
+            .card-badge {
+                font-size: 0.7rem;
+                background: #4caf50;
+                color: white;
+                padding: 0.2rem 0.4rem;
+                border-radius: 3px;
+                margin-left: 0.4rem;
+            }
+            .card-badge.owned { background: #555; }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<nav class="topnav" th:fragment="navbar">
+    <a href="/" class="nav-logo">🎮 GameStore</a>
+    <ul class="nav-links">
+        <li><a href="/games">Магазин</a></li>
+        <li><a href="/ai-search">🤖 AI поиск</a></li>
+        <li sec:authorize="isAuthenticated()"><a href="/cart">🛒 Корзина</a></li>
+        <li sec:authorize="isAuthenticated()"><a href="/library">📚 Библиотека</a></li>
+        <li sec:authorize="isAuthenticated()"><a href="/profile">👤 Профиль</a></li>
+        <li sec:authorize="hasRole('ADMIN')"><a href="/admin">⚙ Админ</a></li>
+        <li sec:authorize="!isAuthenticated()"><a href="/login" class="btn btn-outline">Войти</a></li>
+        <li sec:authorize="!isAuthenticated()"><a href="/register" class="btn btn-primary">Регистрация</a></li>
+        <li sec:authorize="isAuthenticated()">
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <button type="submit" class="btn btn-outline">Выйти</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+<footer th:fragment="footer">
+    <p>© 2026 GameStore — Университетский проект</p>
+</footer>
+
+</body>
+</html>

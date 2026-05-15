@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Поиск — GameStore</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        main { max-width: 900px; }
+
+        .ai-header { text-align: center; padding: 3rem 0 2rem; }
+        .ai-header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .ai-header p { color: #888; }
+
+        .ai-search-box { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .ai-search-box input {
+            flex: 1; padding: 1rem 1.2rem;
+            background: #16213e; border: 2px solid #0f3460;
+            border-radius: 8px; color: #e0e0e0; font-size: 1rem;
+        }
+        .ai-search-box input:focus { outline: none; border-color: #e94560; }
+        .ai-search-box button {
+            padding: 1rem 2rem; background: #e94560; color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;
+            white-space: nowrap;
+        }
+        .ai-search-box button:hover { background: #c73652; }
+
+        .examples { margin-bottom: 2rem; }
+        .examples p { color: #888; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .example-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .chip {
+            padding: 0.3rem 0.8rem; background: #16213e; border: 1px solid #0f3460;
+            border-radius: 20px; font-size: 0.8rem; color: #aaa; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip:hover { border-color: #e94560; color: #e94560; }
+
+        .ai-response {
+            background: #16213e; border-radius: 8px; padding: 1.5rem;
+            border-left: 3px solid #e94560; margin-bottom: 2rem;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .ai-response .ai-label {
+            color: #e94560; font-size: 0.8rem; font-weight: 600;
+            margin-bottom: 0.5rem; text-transform: uppercase;
+        }
+
+        .similar-title { font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem; }
+        .games-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+    <div class="ai-header">
+        <h1>🤖 Умный поиск</h1>
+        <p>Опишите, во что хотите сыграть — система подберёт игры из каталога</p>
+    </div>
+
+    <form th:action="@{/ai-search}" method="post" id="aiForm">
+        <div class="ai-search-box">
+            <input type="text" name="query" id="queryInput"
+                   placeholder="Хочу RPG с открытым миром..."
+                   th:value="${query}"
+                   required>
+            <button type="submit">Найти 🔍</button>
+        </div>
+    </form>
+
+    <div class="examples">
+        <p>Попробуйте:</p>
+        <div class="example-chips">
+            <span class="chip" onclick="setQuery('Расслабляющая игра без стресса')">Расслабляющая</span>
+            <span class="chip" onclick="setQuery('Сложная action игра')">Сложный экшен</span>
+            <span class="chip" onclick="setQuery('Мультиплеер с друзьями онлайн')">Мультиплеер</span>
+            <span class="chip" onclick="setQuery('Бесплатная игра')">Бесплатно</span>
+            <span class="chip" onclick="setQuery('RPG с открытым миром')">Открытый мир</span>
+        </div>
+    </div>
+
+    <div class="ai-response" th:if="${aiResponse}">
+        <div class="ai-label">🤖 Рекомендации:</div>
+        <div th:text="${aiResponse}"></div>
+    </div>
+
+    <div th:if="${similarGames != null and not #lists.isEmpty(similarGames)}">
+        <div class="similar-title">🎮 Подходящие игры:</div>
+        <div class="games-grid">
+            <a class="game-card" th:each="game : ${similarGames}"
+               th:href="@{/games/{id}(id=${game.id})}">
+                <img th:src="${game.imageUrl}" th:alt="${game.title}"
+                     onerror="this.src='https://placehold.co/160x213/16213e/e94560?text=Game'">
+                <div class="card-info">
+                    <div class="card-title" th:text="${game.title}"></div>
+                    <div class="card-genre" th:text="${game.genre}"></div>
+                    <span class="card-price"
+                          th:classappend="${game.price.doubleValue() == 0} ? 'free' : ''"
+                          th:text="${game.price.doubleValue() == 0 ? 'Бесплатно' : '$' + game.price}"></span>
+                </div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script>
+function setQuery(text) {
+    document.getElementById('queryInput').value = text;
+    document.getElementById('aiForm').submit();
+}
+</script>
+
+</body>
+</html>

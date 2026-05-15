@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог — GameStore</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        .page-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+        }
+        .page-title { font-size: 1.5rem; font-weight: 700; }
+        .page-title .filter-hint { color: #888; font-size: 1rem; }
+
+        .filters {
+            display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .search-form { display: flex; gap: 0.5rem; flex: 1; min-width: 250px; }
+        .search-form input {
+            flex: 1; padding: 0.6rem 1rem;
+            background: #0f3460; border: 1px solid #1a4a7a;
+            border-radius: 4px; color: #e0e0e0; font-size: 0.95rem;
+        }
+        .search-form input:focus { outline: none; border-color: #e94560; }
+        .search-form button {
+            background: #e94560; color: white; border: none;
+            padding: 0.6rem 1rem; border-radius: 4px; cursor: pointer;
+        }
+
+        .genre-filter {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem;
+        }
+        .genre-btn {
+            padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.8rem;
+            border: 1px solid #0f3460; color: #aaa;
+            background: transparent; cursor: pointer; transition: all 0.2s;
+        }
+        .genre-btn:hover, .genre-btn.active {
+            background: #e94560; border-color: #e94560; color: white;
+        }
+
+        .no-games {
+            text-align: center; padding: 4rem; color: #555;
+        }
+        .no-games p { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .no-games a { color: #e94560; }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+    <div class="page-header">
+        <div class="page-title">
+            🕹 Каталог игр
+            <span th:if="${selectedGenre}" class="filter-hint">
+                — <span th:text="${selectedGenre}"></span>
+            </span>
+            <span th:if="${searchQuery}" class="filter-hint">
+                — поиск: "<span th:text="${searchQuery}"></span>"
+            </span>
+        </div>
+        <a href="/ai-search" class="btn btn-primary">🤖 Найти с AI</a>
+    </div>
+
+    <div class="filters">
+        <form class="search-form" th:action="@{/games}" method="get">
+            <input type="text" name="search" placeholder="Поиск игр..." th:value="${searchQuery}">
+            <button type="submit">🔍</button>
+        </form>
+    </div>
+
+    <div class="genre-filter">
+        <a href="/games" class="genre-btn"
+           th:classappend="${selectedGenre == null and searchQuery == null} ? 'active' : ''">Все</a>
+        <a th:each="genre : ${genres}"
+           th:href="@{/games(genre=${genre})}"
+           th:text="${genre}"
+           class="genre-btn"
+           th:classappend="${selectedGenre == genre} ? 'active' : ''"></a>
+    </div>
+
+    <div class="games-grid" th:if="${not #lists.isEmpty(games)}">
+        <a class="game-card" th:each="game : ${games}"
+           th:href="@{/games/{id}(id=${game.id})}">
+            <img th:src="${game.imageUrl}" th:alt="${game.title}"
+                 onerror="this.src='https://placehold.co/200x267/16213e/e94560?text=Game'">
+            <div class="card-info">
+                <div class="card-title" th:text="${game.title}">Название игры</div>
+                <div class="card-genre" th:text="${game.genre}">Жанр</div>
+                <div>
+                    <span class="card-price"
+                          th:classappend="${game.price.doubleValue() == 0} ? 'free' : ''"
+                          th:text="${game.price.doubleValue() == 0 ? 'Бесплатно' : '$' + game.price}">$0</span>
+
+                    <span th:if="${libraryIds != null and #lists.contains(libraryIds, game.id)}"
+                          class="card-badge owned">✓ Есть</span>
+
+                    <span th:if="${cartIds != null and #lists.contains(cartIds, game.id)}"
+                          class="card-badge">В корзине</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="no-games" th:if="${#lists.isEmpty(games)}">
+        <p>😔 Игры не найдены</p>
+        <p style="font-size:0.9rem; color:#777">
+            Попробуйте другой запрос или <a href="/games">сбросьте фильтр</a>
+        </p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

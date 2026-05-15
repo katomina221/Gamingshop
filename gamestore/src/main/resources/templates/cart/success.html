@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказ оформлен — GameStore</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        .success-card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 2rem auto;
+            border: 1px solid #4caf50;
+        }
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: bounce 1s ease;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .success-card h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #4caf50; }
+        .success-card p { color: #aaa; margin-bottom: 1.5rem; }
+
+        .order-summary {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        .order-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #0f3460;
+        }
+        .order-row:last-child { border: none; }
+        .order-row.total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #4fc3f7;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #0f3460;
+            border-bottom: none;
+        }
+        .actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .actions .btn { padding: 0.7rem 1.5rem; }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+    <div class="success-card">
+        <div class="success-icon">✅</div>
+        <h1>Заказ оформлен!</h1>
+        <p>Игры добавлены в вашу библиотеку. Можете начинать играть!</p>
+
+        <div class="order-summary">
+            <div class="order-row">
+                <span>Номер заказа:</span>
+                <strong th:text="'#' + ${order.id}">#1</strong>
+            </div>
+            <div class="order-row">
+                <span>Дата:</span>
+                <span th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">сейчас</span>
+            </div>
+            <div class="order-row">
+                <span>Куплено игр:</span>
+                <span th:text="${#lists.size(order.games)}">0</span>
+            </div>
+            <div class="order-row total">
+                <span>Сумма:</span>
+                <span th:text="'$' + ${order.totalPrice}">$0.00</span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="/library" class="btn btn-primary">📚 Моя библиотека</a>
+            <a href="/games" class="btn btn-outline">Продолжить покупки</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

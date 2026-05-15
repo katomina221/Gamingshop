@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${game.title} + ' — GameStore'">Игра</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        .game-detail {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2.5rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 768px) {
+            .game-detail { grid-template-columns: 1fr; }
+        }
+        .game-cover {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            background: #0f3460;
+        }
+        .game-info h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .game-meta {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+            color: #888; font-size: 0.9rem; margin-bottom: 1.5rem;
+        }
+        .game-meta span { padding: 0.2rem 0.6rem; background: #16213e; border-radius: 12px; }
+        .game-description {
+            background: #16213e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            line-height: 1.7;
+            color: #c0c0c0;
+            margin-bottom: 1.5rem;
+        }
+        .price-block {
+            background: #16213e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .price-tag { font-size: 2rem; font-weight: 800; color: #4fc3f7; }
+        .price-tag.free { color: #4caf50; }
+        .price-block .btn { padding: 0.8rem 2rem; font-size: 1rem; }
+        .owned-badge {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 3px solid #4caf50;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            color: #4caf50;
+        }
+        .breadcrumb { color: #666; margin-bottom: 1rem; font-size: 0.9rem; }
+        .breadcrumb a { color: #888; }
+        .breadcrumb a:hover { color: #e94560; }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+    <div class="breadcrumb">
+        <a href="/games">← Каталог</a> / <span th:text="${game.title}">Игра</span>
+    </div>
+
+    <article class="game-detail">
+        <div>
+            <img class="game-cover"
+                 th:src="${game.imageUrl}"
+                 th:alt="${game.title}"
+                 onerror="this.src='https://placehold.co/400x533/16213e/e94560?text=Game'">
+        </div>
+
+        <div class="game-info">
+            <h1 th:text="${game.title}">Название</h1>
+
+            <div class="game-meta">
+                <span th:text="'🎮 ' + ${game.genre}">Жанр</span>
+                <span th:text="'🏢 ' + ${game.developer}">Разработчик</span>
+                <span th:if="${game.rating != null and game.rating > 0}"
+                      th:text="'⭐ ' + ${game.rating}">Рейтинг</span>
+                <span th:if="${game.releaseDate}"
+                      th:text="'📅 ' + ${#temporals.format(game.releaseDate, 'dd.MM.yyyy')}">Дата</span>
+            </div>
+
+            <div class="game-description" th:text="${game.description}">
+                Описание игры
+            </div>
+
+            <div class="owned-badge" th:if="${owned}">
+                ✓ Эта игра уже у вас в библиотеке
+                <a href="/library" style="color:#4caf50; text-decoration:underline; margin-left:0.5rem">
+                    Перейти к библиотеке →
+                </a>
+            </div>
+
+            <div class="price-block" th:unless="${owned}">
+                <div class="price-tag"
+                     th:classappend="${game.price.doubleValue() == 0} ? 'free' : ''"
+                     th:text="${game.price.doubleValue() == 0 ? 'Бесплатно' : '$' + game.price}">
+                    $0.00
+                </div>
+
+                <a sec:authorize="!isAuthenticated()"
+                   href="/login" class="btn btn-primary">
+                    Войти, чтобы купить
+                </a>
+
+                <a sec:authorize="isAuthenticated()"
+                   th:if="${inCart}"
+                   href="/cart" class="btn btn-success">
+                    ✓ В корзине — перейти
+                </a>
+
+                <form sec:authorize="isAuthenticated()"
+                      th:unless="${inCart}"
+                      th:action="@{'/cart/add/' + ${game.id}}"
+                      method="post" style="display:inline">
+                    <button type="submit" class="btn btn-primary">
+                        🛒 В корзину
+                    </button>
+                </form>
+            </div>
+        </div>
+    </article>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

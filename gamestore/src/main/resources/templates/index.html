@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>GameStore — Главная</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
+            padding: 5rem 2rem;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(233,69,96,0.1) 0%, transparent 50%);
+            animation: pulse 8s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .hero-content { position: relative; z-index: 1; }
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+        .hero h1 span { color: #e94560; }
+        .hero p {
+            font-size: 1.1rem;
+            color: #aaa;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+        .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .hero-actions .btn { padding: 0.8rem 1.8rem; font-size: 1rem; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .section-title a { color: #e94560; font-size: 0.85rem; }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+        .feature-card {
+            background: #16213e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #0f3460;
+        }
+        .feature-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .feature-card h3 { margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .feature-card p { color: #888; font-size: 0.9rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Найди свою <span>идеальную</span> игру</h1>
+            <p>Тысячи игр, умный AI-поиск по описанию и быстрая доставка ключей.
+               Создай аккаунт и собирай свою коллекцию.</p>
+            <div class="hero-actions">
+                <a href="/games" class="btn btn-primary">Открыть каталог</a>
+                <a href="/ai-search" class="btn btn-outline">🤖 Найти с AI</a>
+            </div>
+        </div>
+    </section>
+
+    <h2 class="section-title">
+        🔥 Популярные сейчас
+        <a href="/games">Смотреть все →</a>
+    </h2>
+
+    <div class="games-grid" th:if="${not #lists.isEmpty(topGames)}">
+        <a class="game-card" th:each="game : ${topGames}"
+           th:href="@{/games/{id}(id=${game.id})}">
+            <img th:src="${game.imageUrl}" th:alt="${game.title}"
+                 onerror="this.src='https://placehold.co/200x267/16213e/e94560?text=Game'">
+            <div class="card-info">
+                <div class="card-title" th:text="${game.title}">Название</div>
+                <div class="card-genre" th:text="${game.genre}">Жанр</div>
+                <span class="card-price"
+                      th:classappend="${game.price.doubleValue() == 0} ? 'free' : ''"
+                      th:text="${game.price.doubleValue() == 0 ? 'Бесплатно' : '$' + game.price}">$0</span>
+            </div>
+        </a>
+    </div>
+
+    <p th:if="${#lists.isEmpty(topGames)}" style="color:#666; text-align:center; padding:2rem;">
+        Игр пока нет. Зайдите позже!
+    </p>
+
+    <section class="features">
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Мгновенная доставка</h3>
+            <p>Ключи приходят сразу после оплаты, без ожидания.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>Умный поиск</h3>
+            <p>Опиши, во что хочешь играть — система подберёт варианты.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Безопасно</h3>
+            <p>Защищённая авторизация и шифрование паролей.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Личная библиотека</h3>
+            <p>Все купленные игры всегда у тебя в профиле.</p>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

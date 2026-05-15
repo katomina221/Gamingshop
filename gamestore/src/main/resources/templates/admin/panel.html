@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ-панель — GameStore</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .panel-title { font-size: 1.6rem; font-weight: 700; }
+
+        .games-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .games-table th, .games-table td {
+            padding: 0.9rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #0f3460;
+        }
+        .games-table th {
+            background: #0f3460;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #aaa;
+        }
+        .games-table tr:last-child td { border-bottom: none; }
+        .games-table tr:hover td { background: rgba(15, 52, 96, 0.3); }
+        .table-img {
+            width: 40px; height: 53px;
+            object-fit: cover; border-radius: 3px;
+            background: #0f3460;
+        }
+        .row-actions { display: flex; gap: 0.5rem; }
+        .row-actions .btn { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+
+        .stats-bar {
+            background: #16213e;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+        .stats-bar strong { color: #4fc3f7; font-size: 1.1rem; }
+
+        @media (max-width: 640px) {
+            .games-table th:nth-child(3),
+            .games-table td:nth-child(3),
+            .games-table th:nth-child(5),
+            .games-table td:nth-child(5) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+    <div class="panel-header">
+        <h1 class="panel-title">⚙ Управление играми</h1>
+        <a href="/admin/games/new" class="btn btn-primary">+ Добавить игру</a>
+    </div>
+
+    <div class="stats-bar">
+        Всего игр в каталоге: <strong th:text="${#lists.size(games)}">0</strong>
+    </div>
+
+    <table class="games-table" th:if="${not #lists.isEmpty(games)}">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Обложка</th>
+            <th>Название</th>
+            <th>Жанр</th>
+            <th>Разработчик</th>
+            <th>Цена</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="game : ${games}">
+            <td th:text="${game.id}">1</td>
+            <td>
+                <img class="table-img" th:src="${game.imageUrl}" th:alt="${game.title}"
+                     onerror="this.src='https://placehold.co/40x53/16213e/e94560?text=G'">
+            </td>
+            <td>
+                <a th:href="@{/games/{id}(id=${game.id})}" th:text="${game.title}">Название</a>
+            </td>
+            <td th:text="${game.genre}">Жанр</td>
+            <td th:text="${game.developer}">Разработчик</td>
+            <td th:text="${game.price.doubleValue() == 0 ? 'Free' : '$' + game.price}">$0</td>
+            <td>
+                <div class="row-actions">
+                    <form th:action="@{'/admin/games/delete/' + ${game.id}}" method="post"
+                          onsubmit="return confirm('Удалить игру ' + this.dataset.title + '?');"
+                          th:attr="data-title=${game.title}">
+                        <button type="submit" class="btn btn-danger">🗑 Удалить</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p th:if="${#lists.isEmpty(games)}" style="text-align:center; padding:3rem; color:#666;">
+        Игр пока нет — добавьте первую!
+    </p>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>
