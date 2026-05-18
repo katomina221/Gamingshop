@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class git add .DataInitializer implements CommandLineRunner {
+public class DataInitializer implements CommandLineRunner {
 
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
